@@ -7,7 +7,7 @@ import java.util.Random;
 public class Remote extends Thread {
 
     private Hub hub;
-
+    
     private enum Action {
         TURNOFF, TURNON, TOGGLE, TURNOFFALL, TURNONALL, REMOVE, ADD
     };

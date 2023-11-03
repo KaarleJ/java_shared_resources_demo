@@ -23,7 +23,8 @@ public class App4 {
             accounts[i].deposit(rnd.nextDouble(500));
         }
         System.out.println("=========== Accounts created ===========");
-        // ExecutorService tilisiirtojen suorittamista varten. Blokkaa, mikäli jono tulee täyteen (estää muistivuodot)
+        // ExecutorService tilisiirtojen suorittamista varten. Blokkaa, mikäli jono
+        // tulee täyteen (estää muistivuodot)
         ExecutorService transferExecutor = new ThreadPoolExecutor(10,
                 10,
                 0L,
@@ -31,7 +32,8 @@ public class App4 {
                 new ArrayBlockingQueue<>(50),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
-        // Tehdään ja suoritetaan tilisiirtotapahtumia niin kauan kunnes ohjelma suljetaan
+        // Tehdään ja suoritetaan tilisiirtotapahtumia niin kauan kunnes ohjelma
+        // suljetaan
         while (true) {
             var from = accounts[rnd.nextInt(accounts.length)];
             var to = accounts[rnd.nextInt(accounts.length)];
@@ -54,8 +56,8 @@ class BankTransfer implements Runnable {
 
     /**
      * 
-     * @param from Tili, jolta siirretään
-     * @param to Tili, jolle siirretään
+     * @param from   Tili, jolta siirretään
+     * @param to     Tili, jolle siirretään
      * @param amount Rahamäärä, joka siirretään
      */
     public BankTransfer(Account from, Account to, double amount) {
@@ -65,23 +67,39 @@ class BankTransfer implements Runnable {
     }
 
     /**
-     * Tilisiirron suorittava metodi. Lukitsee lähde- ja kohdetilin säikeelle eksklusiivisesti.
+     * Tilisiirron suorittava metodi. Lukitsee lähde- ja kohdetilin säikeelle
+     * eksklusiivisesti.
      */
     @Override
     public void run() {
         // Otetaan säikeen nimi kätevämmän nimiseen muuttujaan
         var name = Thread.currentThread().getName();
-        // Lukitan 1. tili
-        synchronized (from) {
+
+        Account firstLock;
+        Account secondLock;
+
+        if (from.accountNumber < to.accountNumber) {
+            firstLock = from;
+            secondLock = to;
+        } else if (from.accountNumber > to.accountNumber) {
+            firstLock = to;
+            secondLock = from;
+        } else {
+            throw new IllegalArgumentException("Both accounts have the same number!");
+        }
+        // Lukitan järjestyksessä pienempi tilit.
+        synchronized (firstLock) {
             // Lukko ensimmäiseen tiliin saatu, aloitetaan toisen tilin lukitus
-            System.out.printf("%s locked %d, waiting %d%n", name, from.accountNumber, to.accountNumber);
-            synchronized (to) {
-                // Säie sai yksinoikeudet molempiin tileihin, tarkistetaan tilien kate ja suoritetaan siirto,
+            System.out.printf("%s locked %d, waiting %d%n", name, firstLock.accountNumber, secondLock.accountNumber);
+            synchronized (secondLock) {
+                // Säie sai yksinoikeudet molempiin tileihin, tarkistetaan tilien kate ja
+                // suoritetaan siirto,
                 // jos lakiehdot täyttyvät
                 System.out.printf("%s gained exclusive access to %d and %d%n", name, from.accountNumber,
                         to.accountNumber);
                 if ((from.getBalance() - amount) > 0 && (to.getBalance() + amount) <= 1000) {
-                    // Jos tässä kohtaa toinen siirtotapahtuma tekisi siirron, siirto voisi mennä yli lain rajojen
+                    // Jos tässä kohtaa toinen siirtotapahtuma tekisi siirron, siirto voisi mennä
+                    // yli lain rajojen
                     from.withdraw(amount);
                     to.deposit(amount);
                 }
@@ -103,6 +121,7 @@ class Account implements Comparable<Account> {
 
     /**
      * Pankkitilin konstruktori
+     * 
      * @param accountNumber Pankkitilin tilinumero
      */
     public Account(int accountNumber) {
@@ -111,6 +130,7 @@ class Account implements Comparable<Account> {
 
     /**
      * Nosta rahaa tililtä
+     * 
      * @param amount Nostettava rahamäärä
      */
     public synchronized void withdraw(double amount) {
@@ -120,6 +140,7 @@ class Account implements Comparable<Account> {
 
     /**
      * Pane rahaa tilille
+     * 
      * @param amount Pantava rahamäärä
      */
     public synchronized void deposit(double amount) {
@@ -129,6 +150,7 @@ class Account implements Comparable<Account> {
 
     /**
      * Saldotiedustelu
+     * 
      * @return Pankkitilin tämänhetkinen saldo
      */
     public synchronized double getBalance() {
@@ -136,9 +158,12 @@ class Account implements Comparable<Account> {
     }
 
     /**
-     * Vertaile pankkitilejä toisiinsa. Vertailun tulos perustuu tilinumeroon, EI saldoon.
+     * Vertaile pankkitilejä toisiinsa. Vertailun tulos perustuu tilinumeroon, EI
+     * saldoon.
+     * 
      * @param other Toinen tili, johon tätä tiliä verrataan
-     * @return -1, 0 tai 1, jos tämän tilin tilinumero on toisen tilin tilinumeroa pienempi, yhtäsuuri tai suurempi
+     * @return -1, 0 tai 1, jos tämän tilin tilinumero on toisen tilin tilinumeroa
+     *         pienempi, yhtäsuuri tai suurempi
      */
     @Override
     public int compareTo(Account other) {

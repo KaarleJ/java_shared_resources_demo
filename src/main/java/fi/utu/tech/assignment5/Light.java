@@ -17,21 +17,21 @@ public class Light {
     /**
      * Turn lamp on
      */
-    public void turnOn() {
+    public synchronized void turnOn() {
         this.powerOn = true;
     }
 
     /**
      * Turn lamp off
      */
-    public void turnOff() {
+    public synchronized void turnOff() {
         this.powerOn = false;
     }
 
     /**
      * Toggle the lamp on/off depending on the current state
      */
-    public void toggle() {
+    public synchronized void toggle() {
         powerOn = !powerOn;
     }
 
@@ -39,11 +39,11 @@ public class Light {
      * 
      * @return Is the lamp currently powered on?
      */
-    public boolean isPowerOn() {
+    public synchronized boolean isPowerOn() {
         return powerOn;
     }
 
-    public String toString() {
+    public synchronized String toString() {
         return String.format("Light %d is set %s", id, isPowerOn() ? "ON": "OFF");
     }
     

@@ -3,15 +3,15 @@ package fi.utu.tech.assignment5;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Hub implements Runnable {
 
-    private Map<Integer, Light> lights = new HashMap<>();
+    private Map<Integer, Light> lights = new ConcurrentHashMap<>();
     private Random rnd = new Random();
     // Mikäli terminaalisi ei osaa tulostaa lamppujen tilaa oikein, voit kokeilla asettaa tämän arvoon "true"
     private boolean ALTERNATE_OUTPUT = false;
@@ -22,14 +22,18 @@ public class Hub implements Runnable {
      * @return The id of the newly-created light
      */
     public int addLight() {
-        int id = rnd.nextInt(1000);
-        lights.put(id, new Light(id));
-        return id;
+        synchronized (lights) {
+            int id = rnd.nextInt(1000);
+            lights.put(id, new Light(id));
+            return id;
+        }
     }
 
     public void toggleLight(int id) {
-        Light l = lights.get(id);
-        l.toggle();
+        synchronized (lights) {
+            Light l = lights.get(id);
+            l.toggle();
+        }
     }
 
     /**
@@ -38,8 +42,10 @@ public class Hub implements Runnable {
      * @param id The id of light to be turned on
      */
     public void turnOnLight(int id) {
-        Light l = lights.get(id);
-        l.turnOn();
+        synchronized (lights) {
+            Light l = lights.get(id);
+            l.turnOn();
+        }
     }
 
     /**
@@ -48,8 +54,10 @@ public class Hub implements Runnable {
      * @param id The id of light to be turned off
      */
     public void turnOffLight(int id) {
-        Light l = lights.get(id);
-        l.turnOff();
+        synchronized (lights) {
+            Light l = lights.get(id);
+            l.turnOff();
+        }
     }
 
     /**
@@ -58,7 +66,9 @@ public class Hub implements Runnable {
      * @return The set of ids
      */
     public Set<Integer> getLightIds() {
-        return lights.keySet();
+        synchronized (lights) {
+            return lights.keySet();
+        }
     }
 
     /**
@@ -67,15 +77,19 @@ public class Hub implements Runnable {
      * @return The collection of currently available lights
      */
     public Collection<Light> getLights() {
-        return lights.values();
+        synchronized (lights) {
+            return lights.values();
+        }
     }
 
     /**
      * Turn off all the lights
      */
     public void turnOffAllLights() {
-        for (var l : lights.values()) {
-            l.turnOff();
+        synchronized (lights) {
+            for (var l : lights.values()) {
+                l.turnOff();
+            }
         }
     }
 
@@ -83,8 +97,10 @@ public class Hub implements Runnable {
      * Turn on all the lights
      */
     public void turnOnAllLights() {
-        for (var l : lights.values()) {
-            l.turnOn();
+        synchronized (lights) {
+            for (var l : lights.values()) {
+                l.turnOn();
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package fi.utu.tech.assignment3;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Automatic Grader thread - grades a list of
@@ -10,7 +11,7 @@ import java.util.Random;
 public class AutomaticGrader extends Thread {
 
     private List<Submission> ungradedSubmissions;
-    private List<Submission> gradedSubmissions;
+    private LinkedBlockingQueue<Submission> gradedSubmissions;
     private Random rnd = new Random();
 
     /**
@@ -18,7 +19,7 @@ public class AutomaticGrader extends Thread {
      * @param ungradedSubmissions List of ungraded submissions to be graded by this grader
      * @param gradedSubmissions Reference to a shared list where all the graded submissions will be added
      */
-    public AutomaticGrader(List<Submission> ungradedSubmissions, List<Submission> gradedSubmissions) {
+    public AutomaticGrader(List<Submission> ungradedSubmissions, LinkedBlockingQueue<Submission> gradedSubmissions) {
         super();
         // Set a more descriptive name for grader threads
         setName("Grader" + getName());

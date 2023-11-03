@@ -44,7 +44,9 @@ Valtio on päättänyt tasoittaa tuloeroja määräämällä lain, jossa tilisii
 `BankTransfer`-luokan oliot vastaavat yksittäisistä tilisiirtotapahtumista. On tämän luokan vastuulla lukita molemmat tilit (joita kuvaavat luokan `Account` oliot), varmistaa tilisiirron "laillisuus" ja lopulta tehdä tilisiirto. Nykyisessä implementaatiossa on tosin jokin bugi, sillä vaikka tilisiirtoja pitäisi tapahtua jatkuvalla syötöllä, muutaman samanaikaisen tilisiirron alettua, yksikään tilisiirto ei enää mene läpi.
 
 a. Millä nimellä tätä tilannetta kutsutaan ja miksi tilisiirrot tässä ohjelmassa hyytyvät (selosta vaikka esimerkin avulla)?
+Vastaus: Kysessä on kehäodotus. Jokainen säie odottaa resurssia, jonka on lukinnut säie, joka odottaa myös resurssia. Esmierkiksi tässä tilanteessa Tili 1 lukitsee itsensä, vuorontaja antaa Tilille 2 vuoron ja tämä lukitsee itsensä, sitten Tilille 1 annetaan vuoro ja tämä haluaa lukita Tilin 2, mutta se on lukittu. Tili 2 jää odottamaan Tiliä 1, silläe sekin on lukittu. Näin jäädään lukkiumatilanteeseen.
 b. Pystytkö korjaamaan `BankTransfer`-luokan siten, että tilisiirrot eivät jämähdä?
+Tilanne voidaan korjata siten, että tilit lukitaan aina järjestyksessä numeron perusteella. Eli aikaisemmassa tilanteessa Tili 1 lukitsee itsensä ja Tili 2 yrittää myös lukita Tilin 1. Mutta Tili 1 on jo lukittu, niin Tili 2 jää odottamaan. Näin Tili 1 pääsee lukitsemaan myös Tilin 2 ja jatkaa suoritusta.
 
 Yritä keksiä tehtävään (b) ratkaisu, mutta suoritukseksi riittää, että olet tehnyt kohdan (a) ja pohtinut kohtaa (b), vaikket olisikaan löytänyt täydellistä ratkaisua.
 
