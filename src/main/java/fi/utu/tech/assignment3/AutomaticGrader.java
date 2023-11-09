@@ -34,7 +34,7 @@ public class AutomaticGrader extends Thread {
     public void run() {
         for (var s : ungradedSubmissions) {
             try {
-                gradedSubmissions.add(grade(s));
+                gradedSubmissions.put(grade(s));
             } catch (InterruptedException e) {
                 System.out.println("Who dared to interrupt my grading?!");
             }
